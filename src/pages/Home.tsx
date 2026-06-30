@@ -99,6 +99,8 @@ export default function Home() {
     concurrency: 3,
     releaseMinutes: 10,
     announcement: "",
+    showStock: true,
+    showOccupied: true,
   });
   const [redeemCodes, setRedeemCodes] = useState<RedeemCode[]>([]);
   const [redeemError, setRedeemError] = useState("");
@@ -512,7 +514,7 @@ export default function Home() {
     <div className="relative min-h-screen overflow-hidden bg-slate-950 text-slate-100">
       <ParticleBackground />
       <main className={`relative z-10 w-full space-y-5 overflow-x-hidden ${view === "redeem" ? "px-0 py-0" : isAdminMode ? "px-4 py-5" : "px-4 py-4"}`}>
-        {view === "redeem" && <RedeemPage onSubmit={handleRedeem} loading={redeemLoading} error={redeemError} stock={realtimeStock} occupied={occupiedStock} announcement={apiConfig.announcement} />}
+        {view === "redeem" && <RedeemPage onSubmit={handleRedeem} loading={redeemLoading} error={redeemError} stock={realtimeStock} occupied={occupiedStock} showStock={apiConfig.showStock} showOccupied={apiConfig.showOccupied} announcement={apiConfig.announcement} />}
 
         {view === "user" && (
           <>

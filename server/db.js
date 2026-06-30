@@ -132,6 +132,8 @@ const defaultApiConfig = {
   concurrency: 3,
   releaseMinutes: 10,
   announcement: "",
+  showStock: true,
+  showOccupied: true,
 };
 
 const configRow = db.prepare("SELECT config_json FROM app_config WHERE id = 1").get();

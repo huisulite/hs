@@ -61,6 +61,26 @@ export function ApiConfigPanel({ config, onChange }: ApiConfigPanelProps) {
             className="w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-cyan-500"
           />
         </div>
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+          <label className="flex items-center justify-between rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-300">
+            <span>前台显示库存</span>
+            <input
+              type="checkbox"
+              checked={draftConfig.showStock ?? true}
+              onChange={(e) => updateDraft({ showStock: e.target.checked })}
+              className="h-4 w-4 accent-cyan-500"
+            />
+          </label>
+          <label className="flex items-center justify-between rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-300">
+            <span>前台显示占用</span>
+            <input
+              type="checkbox"
+              checked={draftConfig.showOccupied ?? true}
+              onChange={(e) => updateDraft({ showOccupied: e.target.checked })}
+              className="h-4 w-4 accent-cyan-500"
+            />
+          </label>
+        </div>
         <div>
           <label className="block text-sm text-slate-400 mb-1">后台公告</label>
           <textarea

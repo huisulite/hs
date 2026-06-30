@@ -16,6 +16,8 @@ export interface ApiConfig {
   concurrency: number;
   releaseMinutes: number;
   announcement: string;
+  showStock: boolean;
+  showOccupied: boolean;
 }
 
 export interface PhoneRecord {
