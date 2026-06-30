@@ -9,7 +9,7 @@ export function renderTemplate(template: string, record: PhoneRecord): string {
 }
 
 export function buildRequest(config: ApiConfig, record: PhoneRecord): { url: string; init: RequestInit } {
-  const endpoint = renderTemplate(record.api || config.endpoint, record);
+  const endpoint = normalizeEndpoint(renderTemplate(record.api || config.endpoint, record));
   const headers = parseHeaders(config.headersText);
   const url = toProxyUrl(endpoint);
 
@@ -25,6 +25,10 @@ export function buildRequest(config: ApiConfig, record: PhoneRecord): { url: str
       body: renderTemplate(config.requestTemplate, record),
     },
   };
+}
+
+function normalizeEndpoint(endpoint: string): string {
+  return endpoint.trim().replace(/^`|`$/g, "");
 }
 
 function toProxyUrl(endpoint: string): string {

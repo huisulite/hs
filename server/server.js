@@ -32,6 +32,33 @@ const port = 5175;
 app.use(cors());
 app.use(express.json({ limit: "2mb" }));
 
+app.get("/api/proxy", async (req, res) => {
+  try {
+    const target = String(req.query.target || "").trim().replace(/^`|`$/g, "");
+
+    if (!/^https?:\/\//i.test(target)) {
+      res.status(400).send("无效的 target 参数");
+      return;
+    }
+
+    const response = await fetch(target, {
+      method: "GET",
+      headers: {
+        "User-Agent": "Mozilla/5.0",
+        Accept: "*/*",
+      },
+    });
+    const text = await response.text();
+
+    res.status(response.status);
+    res.setHeader("Content-Type", response.headers.get("content-type") || "text/plain; charset=utf-8");
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.send(text);
+  } catch (error) {
+    res.status(502).send(error instanceof Error ? error.message : "代理请求失败");
+  }
+});
+
 app.get("/api/state", (_req, res) => {
   res.json({
     data: {
