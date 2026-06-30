@@ -14,6 +14,22 @@ const ADMIN_AUTH_TIME_KEY = "admin-authed-at";
 const ADMIN_SESSION_MAX_AGE_MS = 2 * 60 * 60 * 1000;
 const ONLINE_CLIENT_KEY = "online-client-id";
 
+function getRecordTime(value?: string) {
+  if (!value) {
+    return 0;
+  }
+  const time = Date.parse(value.replace(/\//g, "-"));
+  return Number.isFinite(time) ? time : 0;
+}
+
+function isExpiredForUser(record: PhoneRecord, releaseMinutes: number, now: number) {
+  if (record.status !== "completed") {
+    return false;
+  }
+  const completedAt = getRecordTime(record.completedAt);
+  return Boolean(completedAt && now - completedAt >= Math.max(1, releaseMinutes) * 60 * 1000);
+}
+
 function isAdminSessionValid() {
   if (sessionStorage.getItem(ADMIN_AUTH_KEY) !== "1") {
     return false;
@@ -94,6 +110,7 @@ export default function Home() {
   const [serverTasks, setServerTasks] = useState<PollingTask[]>([]);
   const [issueReports, setIssueReports] = useState<IssueReport[]>([]);
   const [onlineCount, setOnlineCount] = useState(0);
+  const [nowTick, setNowTick] = useState(Date.now());
   const [adminAuthed, setAdminAuthed] = useState(isAdminSessionValid);
   const previousAdminActiveIdsRef = useRef<Set<string>>(new Set());
   const previousUserActiveIdsRef = useRef<Set<string>>(new Set());
@@ -103,6 +120,14 @@ export default function Home() {
       window.location.replace("/user");
     }
   }, [shouldRedirectToUser]);
+
+  useEffect(() => {
+    if (view !== "user") {
+      return;
+    }
+    const timer = window.setInterval(() => setNowTick(Date.now()), 10000);
+    return () => window.clearInterval(timer);
+  }, [view]);
 
   const adminPolling = usePolling(adminRecords, apiConfig, "backend");
   const userPolling = usePolling(sessionRecords, apiConfig, "frontend");
@@ -459,7 +484,14 @@ export default function Home() {
 
   const realtimeStock = useMemo(() => adminRecords.filter((item) => !item.assignedCode && item.status !== "completed" && item.status !== "abnormal").length, [adminRecords]);
 
-  const currentRecords = view === "admin" ? (status === "running" ? pollRecords : adminPollState.length > 0 ? adminPollState : adminRecords) : (status === "running" ? pollRecords : userPollState.length > 0 ? userPollState : sessionRecords);
+  const currentRecords = useMemo(() => {
+    if (view === "admin") {
+      return status === "running" ? pollRecords : adminPollState.length > 0 ? adminPollState : adminRecords;
+    }
+
+    const source = status === "running" ? pollRecords : userPollState.length > 0 ? userPollState : sessionRecords;
+    return source.filter((record) => !isExpiredForUser(record, apiConfig.releaseMinutes, nowTick));
+  }, [adminPollState, adminRecords, apiConfig.releaseMinutes, nowTick, pollRecords, sessionRecords, status, userPollState, view]);
 
   const stats = useMemo(() => {
     const source = currentRecords;
