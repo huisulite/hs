@@ -14,6 +14,7 @@ interface AdminPanelProps {
   activeIds?: string[];
   serverTasks?: PollingTask[];
   issueReports?: IssueReport[];
+  onlineCount?: number;
   onImport: (text: string, defaultCountryCode: string) => Promise<void>;
   onConfigChange: (config: ApiConfig) => Promise<void>;
   onCreateCodes: (codesText: string, quantityPerCode: number) => Promise<void>;
@@ -41,7 +42,7 @@ const statusText: Record<string, string> = {
   active: "使用中",
 };
 
-export function AdminPanel({ authenticated, onLogin, onLogout, records, redeemCodes, config, serverTasks = [], issueReports = [], onImport, onConfigChange, onCreateCodes, onGenerateRandomCodes, onDeleteCode, onDeleteRecords, onReleaseRecordsCode, onUpdateRecordsCode, onUpdateRecordsStatus, onReuseRecords, onExportAccounts, onDeleteIssue, onClearIssues }: AdminPanelProps) {
+export function AdminPanel({ authenticated, onLogin, onLogout, records, redeemCodes, config, serverTasks = [], issueReports = [], onlineCount = 0, onImport, onConfigChange, onCreateCodes, onGenerateRandomCodes, onDeleteCode, onDeleteRecords, onReleaseRecordsCode, onUpdateRecordsCode, onUpdateRecordsStatus, onReuseRecords, onExportAccounts, onDeleteIssue, onClearIssues }: AdminPanelProps) {
   const [codesText, setCodesText] = useState("");
   const [quantityPerCode, setQuantityPerCode] = useState(1);
   const [randomCount, setRandomCount] = useState(10);
@@ -138,11 +139,12 @@ export function AdminPanel({ authenticated, onLogin, onLogout, records, redeemCo
         </button>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-5">
         <SummaryCard label="账号列表" value={usableRecords.length} hint={`可分配 ${availableCount}`} />
         <SummaryCard label="兑换码" value={redeemCodes.length} hint={`未使用 ${unusedCodeCount}`} />
         <SummaryCard label="使用中" value={activeCodeCount} hint={`已完成 ${completedCodeCount}`} accent="cyan" />
         <SummaryCard label="任务数" value={taskList.length} hint={`已完成手机号 ${completedRecordCount}`} accent="emerald" />
+        <SummaryCard label="在线人数" value={onlineCount} hint="前台访问用户" accent="cyan" />
       </div>
 
       <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-5">

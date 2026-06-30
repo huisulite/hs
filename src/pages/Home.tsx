@@ -5,13 +5,14 @@ import { RecordsTable } from "@/components/RecordsTable";
 import { ParticleBackground } from "@/components/ParticleBackground";
 import { RedeemPage } from "@/components/RedeemPage";
 import { usePolling } from "@/hooks/usePolling";
-import { clearIssueReports, createRedeemCodes, deleteIssueReport, deleteRecords, deleteRedeemCode, fetchAppState, fetchIssueReports, fetchPollingTasks, generateRandomRedeemCodes, importRecords, redeemCode, releaseRecordsCode, reuseRecords, submitIssueReport, syncPollingTasks, syncRecords, updateApiConfig, updateRecordsCode, updateRecordsStatus } from "@/utils/api";
+import { clearIssueReports, createRedeemCodes, deleteIssueReport, deleteRecords, deleteRedeemCode, fetchAppState, fetchIssueReports, fetchOnlineCount, fetchPollingTasks, generateRandomRedeemCodes, importRecords, redeemCode, releaseRecordsCode, reportOnline, reuseRecords, submitIssueReport, syncPollingTasks, syncRecords, updateApiConfig, updateRecordsCode, updateRecordsStatus } from "@/utils/api";
 import { toCsv } from "@/utils/phone";
 import type { ApiConfig, AppView, IssueReport, PhoneRecord, PollingTask, RecordStatus, RedeemCode } from "@/types";
 
 const ADMIN_AUTH_KEY = "admin-authed";
 const ADMIN_AUTH_TIME_KEY = "admin-authed-at";
 const ADMIN_SESSION_MAX_AGE_MS = 2 * 60 * 60 * 1000;
+const ONLINE_CLIENT_KEY = "online-client-id";
 
 function isAdminSessionValid() {
   if (sessionStorage.getItem(ADMIN_AUTH_KEY) !== "1") {
@@ -92,6 +93,7 @@ export default function Home() {
   const [userPollState, setUserPollState] = useState<PhoneRecord[]>([]);
   const [serverTasks, setServerTasks] = useState<PollingTask[]>([]);
   const [issueReports, setIssueReports] = useState<IssueReport[]>([]);
+  const [onlineCount, setOnlineCount] = useState(0);
   const [adminAuthed, setAdminAuthed] = useState(isAdminSessionValid);
   const previousAdminActiveIdsRef = useRef<Set<string>>(new Set());
   const previousUserActiveIdsRef = useRef<Set<string>>(new Set());
@@ -153,6 +155,7 @@ export default function Home() {
     setApiConfig(data.apiConfig);
     setRedeemCodes(data.redeemCodes);
     setIssueReports(data.issueReports || []);
+    setOnlineCount(data.onlineCount || 0);
   }, []);
 
   useEffect(() => {
@@ -169,6 +172,26 @@ export default function Home() {
     }, 3000);
     return () => window.clearInterval(timer);
   }, [loadState, view]);
+
+  useEffect(() => {
+    if (view !== "redeem" && view !== "user") {
+      return;
+    }
+
+    let clientId = localStorage.getItem(ONLINE_CLIENT_KEY);
+    if (!clientId) {
+      clientId = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+      localStorage.setItem(ONLINE_CLIENT_KEY, clientId);
+    }
+
+    const report = () => {
+      void reportOnline(clientId).catch(() => undefined);
+    };
+
+    report();
+    const timer = window.setInterval(report, 10000);
+    return () => window.clearInterval(timer);
+  }, [view]);
 
   useEffect(() => {
     setAdminPollState(adminPolling.records);
@@ -195,6 +218,20 @@ export default function Home() {
     }, 2000);
     return () => window.clearInterval(timer);
   }, [loadServerTasks]);
+
+  useEffect(() => {
+    if (view !== "admin" || !adminAuthed) {
+      return;
+    }
+
+    const loadOnline = () => {
+      void fetchOnlineCount().then((data) => setOnlineCount(data.count)).catch(() => undefined);
+    };
+
+    loadOnline();
+    const timer = window.setInterval(loadOnline, 5000);
+    return () => window.clearInterval(timer);
+  }, [adminAuthed, view]);
 
   useEffect(() => {
     void loadIssues();
@@ -487,6 +524,7 @@ export default function Home() {
             activeIds={activeIds}
             serverTasks={serverTasks}
             issueReports={issueReports}
+            onlineCount={onlineCount}
             onImport={handleAdminImport}
             onConfigChange={async (config) => {
               const next = await updateApiConfig(config);

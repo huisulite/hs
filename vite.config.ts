@@ -53,6 +53,7 @@ export default defineConfig({
       '/api/records': 'http://127.0.0.1:5175',
       '/api/tasks': 'http://127.0.0.1:5175',
       '/api/issues': 'http://127.0.0.1:5175',
+      '/api/online': 'http://127.0.0.1:5175',
     },
   },
   build: {

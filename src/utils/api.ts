@@ -156,3 +156,14 @@ export function syncPollingTasks(payload: { tasks: PollingTask[] }) {
     body: JSON.stringify(payload),
   });
 }
+
+export function reportOnline(clientId: string) {
+  return request<{ count: number }>("/api/online", {
+    method: "POST",
+    body: JSON.stringify({ clientId }),
+  });
+}
+
+export function fetchOnlineCount() {
+  return request<{ count: number }>("/api/online");
+}

@@ -89,6 +89,7 @@ export interface AppState {
   apiConfig: ApiConfig;
   redeemCodes: RedeemCode[];
   issueReports: IssueReport[];
+  onlineCount?: number;
 }
 
 export interface RedeemSession {

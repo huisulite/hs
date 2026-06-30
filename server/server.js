@@ -28,6 +28,18 @@ import {
 
 const app = express();
 const port = 5175;
+const onlineClients = new Map();
+const onlineTimeoutMs = 30000;
+
+function getOnlineCount() {
+  const now = Date.now();
+  for (const [clientId, lastSeen] of onlineClients.entries()) {
+    if (now - lastSeen > onlineTimeoutMs) {
+      onlineClients.delete(clientId);
+    }
+  }
+  return onlineClients.size;
+}
 
 app.use(cors());
 app.use(express.json({ limit: "2mb" }));
@@ -66,8 +78,23 @@ app.get("/api/state", (_req, res) => {
       apiConfig: getApiConfig(),
       redeemCodes: listRedeemCodes(),
       issueReports: listIssueReports(),
+      onlineCount: getOnlineCount(),
     },
   });
+});
+
+app.post("/api/online", (req, res) => {
+  const clientId = String(req.body?.clientId || "").trim();
+  if (!clientId) {
+    res.status(400).json({ error: "缺少 clientId" });
+    return;
+  }
+  onlineClients.set(clientId, Date.now());
+  res.json({ data: { count: getOnlineCount() } });
+});
+
+app.get("/api/online", (_req, res) => {
+  res.json({ data: { count: getOnlineCount() } });
 });
 
 app.put("/api/config", (req, res) => {
