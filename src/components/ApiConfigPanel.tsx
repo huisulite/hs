@@ -62,24 +62,16 @@ export function ApiConfigPanel({ config, onChange }: ApiConfigPanelProps) {
           />
         </div>
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-          <label className="flex items-center justify-between rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-300">
-            <span>前台显示库存</span>
-            <input
-              type="checkbox"
-              checked={draftConfig.showStock ?? true}
-              onChange={(e) => updateDraft({ showStock: e.target.checked })}
-              className="h-4 w-4 accent-cyan-500"
-            />
-          </label>
-          <label className="flex items-center justify-between rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-300">
-            <span>前台显示占用</span>
-            <input
-              type="checkbox"
-              checked={draftConfig.showOccupied ?? true}
-              onChange={(e) => updateDraft({ showOccupied: e.target.checked })}
-              className="h-4 w-4 accent-cyan-500"
-            />
-          </label>
+          <ToggleSwitch
+            label="前台显示库存"
+            checked={draftConfig.showStock ?? true}
+            onChange={(checked) => updateDraft({ showStock: checked })}
+          />
+          <ToggleSwitch
+            label="前台显示占用"
+            checked={draftConfig.showOccupied ?? true}
+            onChange={(checked) => updateDraft({ showOccupied: checked })}
+          />
         </div>
         <div>
           <label className="block text-sm text-slate-400 mb-1">后台公告</label>
@@ -98,5 +90,20 @@ export function ApiConfigPanel({ config, onChange }: ApiConfigPanelProps) {
         保存设置
       </button>
     </div>
+  );
+}
+
+function ToggleSwitch({ label, checked, onChange }: { label: string; checked: boolean; onChange: (checked: boolean) => void }) {
+  return (
+    <button
+      type="button"
+      onClick={() => onChange(!checked)}
+      className="flex items-center justify-between rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-300 transition-colors hover:border-slate-600"
+    >
+      <span>{label}</span>
+      <span className={`relative h-6 w-11 rounded-full transition-colors ${checked ? "bg-cyan-500" : "bg-slate-700"}`}>
+        <span className={`absolute left-1 top-1 h-4 w-4 rounded-full bg-white transition-transform ${checked ? "translate-x-5" : "translate-x-0"}`} />
+      </span>
+    </button>
   );
 }
