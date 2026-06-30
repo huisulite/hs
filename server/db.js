@@ -753,37 +753,7 @@ function refreshRedeemCodeStatus(code) {
 }
 
 function releaseExpiredCompletedRecords() {
-  const releaseMinutes = Math.max(1, Number(getApiConfig().releaseMinutes) || 10);
-  const now = Date.now();
-  const rows = db.prepare(`
-    SELECT id, completed_at
-    FROM phone_records
-    WHERE status = 'completed' AND completed_at IS NOT NULL
-  `).all();
-  const expiredIds = rows
-    .filter((item) => {
-      const completedTime = Date.parse(String(item.completed_at).replace(/\//g, "-"));
-      return Number.isFinite(completedTime) && now - completedTime >= releaseMinutes * 60 * 1000;
-    })
-    .map((item) => item.id);
-
-  if (expiredIds.length === 0) {
-    return;
-  }
-
-  const placeholders = expiredIds.map(() => "?").join(",");
-  db.prepare(`
-    UPDATE phone_records
-    SET assigned_code = NULL,
-        result = '',
-        status = 'pending',
-        attempts = 0,
-        completed_at = NULL,
-        consumed_at = NULL,
-        last_requested_at = NULL,
-        error = NULL
-    WHERE id IN (${placeholders})
-  `).run(...expiredIds);
+  return;
 }
 
 function mapTask(row) {
