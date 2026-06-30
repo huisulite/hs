@@ -30,7 +30,7 @@ interface AdminPanelProps {
   onClearIssues: () => Promise<void>;
 }
 
-type AdminSection = "accounts" | "usedAccounts" | "codes" | "tasks" | "settings";
+type AdminSection = "accounts" | "usedAccounts" | "codes" | "tasks" | "issues" | "settings";
 
 const statusText: Record<string, string> = {
   pending: "等待",
@@ -98,7 +98,8 @@ export function AdminPanel({ authenticated, onLogin, onLogout, records, redeemCo
     { key: "usedAccounts", label: "已使用账号", desc: "已完成账号", icon: Ticket, count: usedRecords.length },
     { key: "codes", label: "兑换码管理", desc: "生成、列表、使用记录", icon: Tickets, count: redeemCodes.length },
     { key: "tasks", label: "任务监控", desc: "查看轮询中任务", icon: Activity, count: taskList.length },
-    { key: "settings", label: "系统设置", desc: "轮询与问题列表", icon: Settings, count: issueReports.length },
+    { key: "issues", label: "问题列表", desc: "用户提交的问题", icon: MessageSquareWarning, count: issueReports.length },
+    { key: "settings", label: "系统设置", desc: "轮询与前台显示", icon: Settings, count: 0 },
   ];
 
   const renderCodeStatus = (status: RedeemCode["status"]) => {
@@ -147,7 +148,7 @@ export function AdminPanel({ authenticated, onLogin, onLogout, records, redeemCo
         <SummaryCard label="在线人数" value={onlineCount} hint="前台访问用户" accent="cyan" />
       </div>
 
-      <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-5">
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-6">
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = section === item.key;
@@ -309,25 +310,26 @@ export function AdminPanel({ authenticated, onLogin, onLogout, records, redeemCo
         </div>
       )}
 
+      {section === "issues" && (
+        <div className="rounded-xl border border-slate-700 bg-slate-800 p-4">
+          <div className="mb-4 flex items-center justify-between gap-3">
+            <SectionHeader icon={MessageSquareWarning} title="问题列表" desc="显示用户前端提交的问题和账号获取状态。" />
+            <button
+              onClick={onClearIssues}
+              disabled={issueReports.length === 0}
+              className="rounded-lg border border-red-500/30 px-3 py-2 text-sm text-red-300 transition-colors hover:bg-red-500/10 disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              清空记录
+            </button>
+          </div>
+          <IssueReportsTable reports={issueReports} onDelete={onDeleteIssue} />
+        </div>
+      )}
+
       {section === "settings" && (
-        <div className="grid grid-cols-1 gap-5 xl:grid-cols-[420px_minmax(0,1fr)]">
-          <div className="rounded-xl border border-slate-700 bg-slate-800 p-4">
-            <SectionHeader icon={Settings} title="轮询设置" desc="统一设置并发、间隔和成功手机号释放时间。" />
-            <ApiConfigPanel config={config} onChange={onConfigChange} />
-          </div>
-          <div className="rounded-xl border border-slate-700 bg-slate-800 p-4">
-            <div className="mb-4 flex items-center justify-between gap-3">
-              <SectionHeader icon={MessageSquareWarning} title="问题列表" desc="显示用户前端提交的问题和账号获取状态。" />
-              <button
-                onClick={onClearIssues}
-                disabled={issueReports.length === 0}
-                className="rounded-lg border border-red-500/30 px-3 py-2 text-sm text-red-300 transition-colors hover:bg-red-500/10 disabled:cursor-not-allowed disabled:opacity-40"
-              >
-                清空记录
-              </button>
-            </div>
-            <IssueReportsTable reports={issueReports} onDelete={onDeleteIssue} />
-          </div>
+        <div className="max-w-xl rounded-xl border border-slate-700 bg-slate-800 p-4">
+          <SectionHeader icon={Settings} title="轮询设置" desc="统一设置并发、间隔和成功手机号释放时间。" />
+          <ApiConfigPanel config={config} onChange={onConfigChange} />
         </div>
       )}
     </div>
