@@ -2,8 +2,8 @@ import fs from "node:fs";
 import path from "node:path";
 import Database from "libsql";
 
-const dataDir = path.resolve(process.cwd(), "data");
-const dbPath = path.join(dataDir, "app.db");
+const dataDir = process.env.HS_DATA_DIR || path.resolve(process.cwd(), "..", "hs-exchange-data");
+const dbPath = process.env.HS_DB_PATH || path.join(dataDir, "app.db");
 
 fs.mkdirSync(dataDir, { recursive: true });
 
@@ -753,7 +753,36 @@ function refreshRedeemCodeStatus(code) {
 }
 
 function releaseExpiredCompletedRecords() {
-  return;
+  const releaseMinutes = Math.max(1, Number(getApiConfig().releaseMinutes) || 10);
+  const now = Date.now();
+  const rows = db.prepare(`
+    SELECT id, completed_at, assigned_code
+    FROM phone_records
+    WHERE status = 'completed'
+      AND completed_at IS NOT NULL
+      AND assigned_code IS NOT NULL
+      AND consumed_at IS NOT NULL
+  `).all();
+  const expiredRows = rows.filter((item) => {
+    const completedTime = Date.parse(String(item.completed_at).replace(/\//g, "-"));
+    return Number.isFinite(completedTime) && now - completedTime >= releaseMinutes * 60 * 1000;
+  });
+
+  if (expiredRows.length === 0) {
+    return;
+  }
+
+  const expiredIds = expiredRows.map((item) => item.id);
+  const placeholders = expiredIds.map(() => "?").join(",");
+  db.prepare(`
+    UPDATE phone_records
+    SET assigned_code = NULL
+    WHERE id IN (${placeholders})
+  `).run(...expiredIds);
+
+  for (const code of new Set(expiredRows.map((item) => item.assigned_code).filter(Boolean))) {
+    refreshRedeemCodeStatus(code);
+  }
 }
 
 function mapTask(row) {
