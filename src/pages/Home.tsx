@@ -484,9 +484,9 @@ export default function Home() {
     }
   }, []);
 
-  const realtimeStock = useMemo(() => adminRecords.filter((item) => !item.consumedAt && item.status !== "completed" && item.status !== "abnormal" && item.status !== "failed").length, [adminRecords]);
+  const realtimeStock = useMemo(() => adminRecords.length, [adminRecords]);
   const occupiedStock = useMemo(() => adminRecords.filter((item) => Boolean(item.assignedCode) || item.status === "abnormal" || item.status === "failed").length, [adminRecords]);
-  const availableStock = useMemo(() => adminRecords.filter((item) => !item.assignedCode && item.status !== "abnormal" && item.status !== "failed").length, [adminRecords]);
+  const availableStock = useMemo(() => adminRecords.filter((item) => !item.assignedCode && !item.consumedAt && item.status !== "completed" && item.status !== "abnormal" && item.status !== "failed").length, [adminRecords]);
 
   const currentRecords = useMemo(() => {
     if (view === "admin") {
