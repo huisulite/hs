@@ -6,12 +6,13 @@ interface RedeemPageProps {
   error?: string;
   stock: number;
   occupied: number;
+  available: number;
   showStock: boolean;
   showOccupied: boolean;
   announcement?: string;
 }
 
-export function RedeemPage({ onSubmit, loading, error, stock, occupied, showStock, showOccupied, announcement = "" }: RedeemPageProps) {
+export function RedeemPage({ onSubmit, loading, error, stock, occupied, available, showStock, showOccupied, announcement = "" }: RedeemPageProps) {
   const [code, setCode] = useState("");
 
   return (
@@ -33,22 +34,24 @@ export function RedeemPage({ onSubmit, loading, error, stock, occupied, showStoc
               <h2 className="text-xl font-semibold tracking-normal text-slate-100">兑换码</h2>
             </div>
 
-            {(showStock || showOccupied) && (
-              <div className={`grid gap-3 ${showStock && showOccupied ? "grid-cols-2" : "grid-cols-1"}`}>
-                {showStock && (
-                  <div className="rounded-2xl border border-slate-800 bg-slate-950 px-4 py-3">
-                    <div className="text-sm text-slate-400">库存</div>
-                    <div className="mt-1 text-xl font-semibold text-slate-100">{stock}</div>
-                  </div>
-                )}
-                {showOccupied && (
-                  <div className="rounded-2xl border border-slate-800 bg-slate-950 px-4 py-3">
-                    <div className="text-sm text-slate-400">占用</div>
-                    <div className="mt-1 text-xl font-semibold text-slate-100">{occupied}</div>
-                  </div>
-                )}
+            <div className={`grid gap-3 ${showStock && showOccupied ? "grid-cols-3" : showStock || showOccupied ? "grid-cols-2" : "grid-cols-1"}`}>
+              {showStock && (
+                <div className="rounded-2xl border border-slate-800 bg-slate-950 px-4 py-3">
+                  <div className="text-sm text-slate-400">库存</div>
+                  <div className="mt-1 text-xl font-semibold text-slate-100">{stock}</div>
+                </div>
+              )}
+              {showOccupied && (
+                <div className="rounded-2xl border border-slate-800 bg-slate-950 px-4 py-3">
+                  <div className="text-sm text-slate-400">占用</div>
+                  <div className="mt-1 text-xl font-semibold text-slate-100">{occupied}</div>
+                </div>
+              )}
+              <div className="rounded-2xl border border-slate-800 bg-slate-950 px-4 py-3">
+                <div className="text-sm text-slate-400">可用</div>
+                <div className="mt-1 text-xl font-semibold text-slate-100">{available}</div>
               </div>
-            )}
+            </div>
 
             <input
               value={code}
