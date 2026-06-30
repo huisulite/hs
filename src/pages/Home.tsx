@@ -483,6 +483,7 @@ export default function Home() {
   }, []);
 
   const realtimeStock = useMemo(() => adminRecords.filter((item) => !item.assignedCode && item.status !== "completed" && item.status !== "abnormal").length, [adminRecords]);
+  const occupiedStock = useMemo(() => adminRecords.filter((item) => Boolean(item.assignedCode)).length, [adminRecords]);
 
   const currentRecords = useMemo(() => {
     if (view === "admin") {
@@ -511,7 +512,7 @@ export default function Home() {
     <div className="relative min-h-screen overflow-hidden bg-slate-950 text-slate-100">
       <ParticleBackground />
       <main className={`relative z-10 w-full space-y-5 overflow-x-hidden ${view === "redeem" ? "px-0 py-0" : isAdminMode ? "px-4 py-5" : "px-4 py-4"}`}>
-        {view === "redeem" && <RedeemPage onSubmit={handleRedeem} loading={redeemLoading} error={redeemError} stock={realtimeStock} announcement={apiConfig.announcement} />}
+        {view === "redeem" && <RedeemPage onSubmit={handleRedeem} loading={redeemLoading} error={redeemError} stock={realtimeStock} occupied={occupiedStock} announcement={apiConfig.announcement} />}
 
         {view === "user" && (
           <>

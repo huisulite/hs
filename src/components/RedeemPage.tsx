@@ -5,10 +5,11 @@ interface RedeemPageProps {
   loading: boolean;
   error?: string;
   stock: number;
+  occupied: number;
   announcement?: string;
 }
 
-export function RedeemPage({ onSubmit, loading, error, stock, announcement = "" }: RedeemPageProps) {
+export function RedeemPage({ onSubmit, loading, error, stock, occupied, announcement = "" }: RedeemPageProps) {
   const [code, setCode] = useState("");
 
   return (
@@ -30,9 +31,15 @@ export function RedeemPage({ onSubmit, loading, error, stock, announcement = "" 
               <h2 className="text-xl font-semibold tracking-normal text-slate-100">兑换码</h2>
             </div>
 
-            <div className="flex items-center justify-between rounded-2xl border border-slate-800 bg-slate-950 px-4 py-3">
-              <div className="text-sm text-slate-400">实时库存</div>
-              <div className="text-xl font-semibold text-slate-100">{stock}</div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="rounded-2xl border border-slate-800 bg-slate-950 px-4 py-3">
+                <div className="text-sm text-slate-400">库存</div>
+                <div className="mt-1 text-xl font-semibold text-slate-100">{stock}</div>
+              </div>
+              <div className="rounded-2xl border border-slate-800 bg-slate-950 px-4 py-3">
+                <div className="text-sm text-slate-400">占用</div>
+                <div className="mt-1 text-xl font-semibold text-slate-100">{occupied}</div>
+              </div>
             </div>
 
             <input
