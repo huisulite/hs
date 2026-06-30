@@ -294,7 +294,7 @@ export default function Home() {
   }, [adminRecords, exportRecords]);
 
   const handleAdminLogin = useCallback((username: string, password: string) => {
-    const passed = username === "admin" && password === "admin123";
+    const passed = username === "2512729930" && password === "l123456789";
     if (passed) {
       sessionStorage.setItem(ADMIN_AUTH_KEY, "1");
       sessionStorage.setItem(ADMIN_AUTH_TIME_KEY, String(Date.now()));
