@@ -50,7 +50,7 @@ export function AdminPanel({ authenticated, onLogin, onLogout, records, redeemCo
   const [section, setSection] = useState<AdminSection>("accounts");
   const [taskSourceFilter, setTaskSourceFilter] = useState<"all" | "frontend" | "backend">("all");
 
-  const availableCount = useMemo(() => records.filter((item) => !item.assignedCode && item.status !== "completed" && item.status !== "abnormal" && !item.consumedAt).length, [records]);
+  const availableCount = useMemo(() => records.filter((item) => !item.assignedCode && !item.consumedAt && item.status !== "completed" && item.status !== "abnormal" && item.status !== "failed").length, [records]);
   const completedCodeCount = useMemo(() => redeemCodes.filter((item) => item.status === "completed").length, [redeemCodes]);
   const activeCodeCount = useMemo(() => redeemCodes.filter((item) => item.status === "active").length, [redeemCodes]);
   const unusedCodeCount = useMemo(() => redeemCodes.filter((item) => item.status === "unused").length, [redeemCodes]);
@@ -140,8 +140,9 @@ export function AdminPanel({ authenticated, onLogin, onLogout, records, redeemCo
         </button>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-5">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-6">
         <SummaryCard label="账号列表" value={usableRecords.length} hint={`可分配 ${availableCount}`} />
+        <SummaryCard label="可用" value={availableCount} hint="未使用可分配" accent="emerald" />
         <SummaryCard label="兑换码" value={redeemCodes.length} hint={`未使用 ${unusedCodeCount}`} />
         <SummaryCard label="使用中" value={activeCodeCount} hint={`已完成 ${completedCodeCount}`} accent="cyan" />
         <SummaryCard label="任务数" value={taskList.length} hint={`已完成手机号 ${completedRecordCount}`} accent="emerald" />
