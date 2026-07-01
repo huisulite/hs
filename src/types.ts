@@ -18,6 +18,7 @@ export interface ApiConfig {
   announcement: string;
   showStock: boolean;
   showOccupied: boolean;
+  showAvailable: boolean;
 }
 
 export interface PhoneRecord {

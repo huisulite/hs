@@ -61,7 +61,7 @@ export function ApiConfigPanel({ config, onChange }: ApiConfigPanelProps) {
             className="w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-cyan-500"
           />
         </div>
-        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
           <ToggleSwitch
             label="前台显示库存"
             checked={draftConfig.showStock ?? true}
@@ -71,6 +71,11 @@ export function ApiConfigPanel({ config, onChange }: ApiConfigPanelProps) {
             label="前台显示占用"
             checked={draftConfig.showOccupied ?? true}
             onChange={(checked) => updateDraft({ showOccupied: checked })}
+          />
+          <ToggleSwitch
+            label="前台显示可用"
+            checked={draftConfig.showAvailable ?? true}
+            onChange={(checked) => updateDraft({ showAvailable: checked })}
           />
         </div>
         <div>

@@ -134,6 +134,7 @@ const defaultApiConfig = {
   announcement: "",
   showStock: true,
   showOccupied: true,
+  showAvailable: true,
 };
 
 const configRow = db.prepare("SELECT config_json FROM app_config WHERE id = 1").get();
